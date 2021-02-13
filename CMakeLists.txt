@@ -18,6 +18,7 @@ find_program(OPENSSL_PROGRAM openssl
   PATHS ${OPENSSL_ROOT_DIR} PATH_SUFFIXES apps bin NO_DEFAULT_PATH)
 message(STATUS "Found OpenSSL application: ${OPENSSL_PROGRAM}")
 include_directories(${OPENSSL_INCLUDE_DIR})
+set(OPENSSL_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/ossl-modules)
 
 if (CMAKE_C_COMPILER_ID MATCHES "Clang")
   set(CMAKE_C_FLAGS_RELEASE -O2)
@@ -409,6 +410,11 @@ install(TARGETS lib_gost_engine EXPORT GostEngineConfig LIBRARY DESTINATION ${CM
 install(TARGETS gost_engine EXPORT GostEngineConfig
         LIBRARY  DESTINATION ${OPENSSL_ENGINES_DIR}
         RUNTIME  DESTINATION ${OPENSSL_ENGINES_DIR})
+install(TARGETS lib_gost_prov EXPORT GostProviderConfig
+        LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS gost_prov EXPORT GostProviderConfig
+        LIBRARY  DESTINATION ${OPENSSL_MODULES_DIR}
+        RUNTIME  DESTINATION ${OPENSSL_MODULES_DIR})
 if (MSVC)
   install(FILES $<TARGET_PDB_FILE:lib_gost_engine>
     EXPORT GostEngineConfig DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
@@ -416,5 +422,9 @@ if (MSVC)
     EXPORT GostEngineConfig DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
   install(FILES $<TARGET_PDB_FILE:gost_engine>
     EXPORT GostEngineConfig DESTINATION ${OPENSSL_ENGINES_DIR} OPTIONAL)
+  install(FILES $<TARGET_PDB_FILE:lib_gost_prov>
+    EXPORT GostProviderConfig DESTINATION ${CMAKE_INSTALL_LIBDIR} OPTIONAL)
+  install(FILES $<TARGET_PDB_FILE:gost_prov>
+    EXPORT GostProviderConfig DESTINATION ${OPENSSL_MODULES_DIR} OPTIONAL)
 endif()
 install(EXPORT GostEngineConfig DESTINATION GostEngine/share/cmake/GostEngine)
