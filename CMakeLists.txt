@@ -197,6 +197,10 @@ set(GOST_ENGINE_SOURCE_FILES
         gost_eng.c
         )
 
+set(GOST_PROV_SOURCE_FILES
+        gost_prov.c
+        )
+
 set(TEST_ENVIRONMENT
         CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
         PERL5LIB=${CMAKE_CURRENT_SOURCE_DIR}/test
@@ -205,6 +209,7 @@ set(TEST_ENVIRONMENT
         OPENSSL_CRYPTO_LIBRARY=${OPENSSL_CRYPTO_LIBRARY}
         OPENSSL_CONF=${CMAKE_CURRENT_SOURCE_DIR}/test/engine.cnf
         )
+
 add_executable(test_digest test_digest.c)
 target_link_libraries(test_digest ${OPENSSL_CRYPTO_LIBRARY})
 add_test(NAME digest COMMAND test_digest)
@@ -308,6 +313,29 @@ set_target_properties(lib_gost_engine PROPERTIES
   OUTPUT_NAME "gost")
 target_link_libraries(lib_gost_engine PRIVATE gost_core ${OPENSSL_CRYPTO_LIBRARY})
 
+
+# The GOST provider uses this
+add_subdirectory(libprov)
+
+# The GOST provider in module form
+add_library(gost_prov MODULE
+  ${GOST_PROV_SOURCE_FILES} ${GOST_ENGINE_SOURCE_FILES}
+  )
+set_target_properties(gost_prov PROPERTIES
+  PREFIX "" OUTPUT_NAME "gostprov"
+  COMPILE_DEFINITIONS "BUILDING_GOST_PROVIDER;OPENSSL_NO_DYNAMIC_ENGINE"
+  )
+target_link_libraries(gost_prov gost_core libprov ${OPENSSL_CRYPTO_LIBRARY})
+
+# The GOST provider in library form
+add_library(lib_gost_prov SHARED
+  ${GOST_PROV_SOURCE_FILES} ${GOST_ENGINE_SOURCE_FILES}
+  )
+set_target_properties(lib_gost_prov PROPERTIES
+  OUTPUT_NAME "gostprov"
+  COMPILE_DEFINITIONS "BUILDING_GOST_PROVIDER;BUILDING_PROVIDER_AS_LIBRARY;OPENSSL_NO_DYNAMIC_ENGINE"
+  )
+target_link_libraries(lib_gost_prov gost_core libprov ${OPENSSL_CRYPTO_LIBRARY})
 
 set(GOST_SUM_SOURCE_FILES
         gostsum.c
