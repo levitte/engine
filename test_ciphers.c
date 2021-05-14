@@ -572,11 +572,11 @@ int main(int argc, char **argv)
 
 	printf(cBLUE "# Tests for %s [%s]" cNORM "\n", t->algname, standard);
 	for (inplace = 0; inplace <= 1; inplace++)
-	    ret |= test_block(ciph, name, t->block,
+	    ret |= test_block(ciph, t->algname, t->block,
 		t->plaintext, t->key, t->expected, t->size,
 		t->iv, t->iv_size, t->acpkm, inplace);
 	if (t->stream)
-	    ret |= test_stream(ciph, name,
+	    ret |= test_stream(ciph, t->algname,
 		t->plaintext, t->key, t->expected, t->size,
 		t->iv, t->iv_size, t->acpkm);
 
